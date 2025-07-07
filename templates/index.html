@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Médical - Laboratoire de Biologie</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microscope"></i>
+                    <h1>Assistant Médical</h1>
+                </div>
+                <p class="subtitle">Laboratoire de Biologie Clinique</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="chat-container">
+                <div class="welcome-message" id="welcomeMessage">
+                    <div class="welcome-icon">
+                        <i class="fas fa-stethoscope"></i>
+                    </div>
+                    <h2>Bienvenue dans votre assistant médical</h2>
+                    <p>Posez vos questions cliniques et administratives en français. Je vous répondrai en me basant sur nos protocoles et documents internes.</p>
+                    <div class="example-questions">
+                        <h3>Exemples de questions :</h3>
+                        <div class="question-examples">
+                            <button class="example-btn" onclick="setQuestion('Comment interpréter une sérologie CMV ?')">
+                                <i class="fas fa-vial"></i>
+                                Comment interpréter une sérologie CMV ?
+                            </button>
+                            <button class="example-btn" onclick="setQuestion('Quels sont les délais pour un hémogramme ?')">
+                                <i class="fas fa-clock"></i>
+                                Quels sont les délais pour un hémogramme ?
+                            </button>
+                            <button class="example-btn" onclick="setQuestion('Que faire si un médecin demande les résultats d\'un autre patient ?')">
+                                <i class="fas fa-user-shield"></i>
+                                Confidentialité des résultats
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="messages" id="messages"></div>
+
+                <div class="loading" id="loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p>Recherche dans la base de données...</p>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="questionInput" 
+                        placeholder="Posez votre question médicale ou administrative en français..."
+                        rows="3"
+                        maxlength="500"
+                    ></textarea>
+                    <div class="input-actions">
+                        <span class="char-counter" id="charCounter">0/500</span>
+                        <button id="submitBtn" class="submit-btn" onclick="askQuestion()">
+                            <i class="fas fa-paper-plane"></i>
+                            Envoyer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="status-indicator" id="statusIndicator">
+                    <i class="fas fa-circle"></i>
+                    <span>Vérification du statut...</span>
+                </div>
+                <div class="footer-links">
+                    <button class="link-btn" onclick="showSources()">
+                        <i class="fas fa-database"></i>
+                        Sources disponibles
+                    </button>
+                    <button class="link-btn" onclick="clearChat()">
+                        <i class="fas fa-trash"></i>
+                        Vider la conversation
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal pour afficher les sources -->
+    <div class="modal" id="sourcesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sources disponibles</h2>
+                <button class="close-btn" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="sourcesContent">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Chargement des sources...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let isLoading = false;
+        let messageCount = 0;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            checkStatus();
+            setupEventListeners();
+            updateCharCounter();
+        });
+
+        // Configuration des événements
+        function setupEventListeners() {
+            const input = document.getElementById('questionInput');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Soumission par Enter (avec Shift+Enter pour nouvelle ligne)
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    askQuestion();
+                }
+            });
+
+            // Compteur de caractères
+            input.addEventListener('input', updateCharCounter);
+
+            // Fermeture du modal en cliquant à l'extérieur
+            window.addEventListener('click', function(e) {
+                const modal = document.getElementById('sourcesModal');
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Vérification du statut de l'application
+        function checkStatus() {
+            fetch('/api/health')
+                .then(response => response.json())
+                .then(data => {
+                    const indicator = document.getElementById('statusIndicator');
+                    if (data.success) {
+                        indicator.innerHTML = `
+                            <i class="fas fa-circle status-online"></i>
+                            <span>Prêt - ${data.database_documents} documents chargés</span>
+                        `;
+                    } else {
+                        indicator.innerHTML = `
+                            <i class="fas fa-circle status-offline"></i>
+                            <span>Erreur - ${data.error}</span>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('statusIndicator').innerHTML = `
+                        <i class="fas fa-circle status-offline"></i>
+                        <span>Déconnecté - Impossible de vérifier le statut</span>
+                    `;
+                });
+        }
+
+        // Mise à jour du compteur de caractères
+        function updateCharCounter() {
+            const input = document.getElementById('questionInput');
+            const counter = document.getElementById('charCounter');
+            const length = input.value.length;
+            counter.textContent = `${length}/500`;
+            
+            if (length > 400) {
+                counter.classList.add('warning');
+            } else {
+                counter.classList.remove('warning');
+            }
+        }
+
+        // Définir une question exemple
+        function setQuestion(question) {
+            document.getElementById('questionInput').value = question;
+            updateCharCounter();
+            document.getElementById('questionInput').focus();
+        }
+
+        // Poser une question
+        function askQuestion() {
+            if (isLoading) return;
+
+            const input = document.getElementById('questionInput');
+            const question = input.value.trim();
+
+            if (!question) {
+                showError('Veuillez saisir une question');
+                return;
+            }
+
+            // Cacher le message d'accueil
+            document.getElementById('welcomeMessage').style.display = 'none';
+
+            // Afficher la question de l'utilisateur
+            addMessage('user', question);
+
+            // Vider le champ de saisie
+            input.value = '';
+            updateCharCounter();
+
+            // Afficher le loading
+            setLoading(true);
+
+            // Envoyer la question
+            fetch('/api/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question: question
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                setLoading(false);
+                
+                if (data.success) {
+                    addMessage('assistant', data.answer, data.sources);
+                } else {
+                    addMessage('assistant', `Erreur: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                setLoading(false);
+                addMessage('assistant', 'Erreur de connexion. Veuillez réessayer.');
+                console.error('Erreur:', error);
+            });
+        }
+
+        // Ajouter un message à la conversation
+        function addMessage(sender, content, sources = null) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.id = `message-${++messageCount}`;
+
+            let sourcesHtml = '';
+            if (sources && sources.length > 0) {
+                sourcesHtml = `
+                    <div class="sources">
+                        <h4><i class="fas fa-book"></i> Sources utilisées:</h4>
+                        <div class="source-list">
+                            ${sources.map(source => `
+                                <div class="source-item">
+                                    <span class="source-title">${source.title}</span>
+                                    <span class="source-score">Pertinence: ${Math.round(source.score * 100)}%</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <div class="message-sender">
+                        <i class="fas ${sender === 'user' ? 'fa-user' : 'fa-robot'}"></i>
+                        ${sender === 'user' ? 'Vous' : 'Assistant'}
+                    </div>
+                    <div class="message-time">${new Date().toLocaleTimeString('fr-FR')}</div>
+                </div>
+                <div class="message-content">
+                    ${content.replace(/\n/g, '<br>')}
+                </div>
+                ${sourcesHtml}
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Gérer l'état de chargement
+        function setLoading(loading) {
+            isLoading = loading;
+            const loadingDiv = document.getElementById('loading');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (loading) {
+                loadingDiv.style.display = 'block';
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+            } else {
+                loadingDiv.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer';
+            }
+        }
+
+        // Afficher les sources
+        function showSources() {
+            const modal = document.getElementById('sourcesModal');
+            const content = document.getElementById('sourcesContent');
+            
+            modal.style.display = 'block';
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Chargement des sources...</p>
+                </div>
+            `;
+
+            fetch('/api/sources')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        content.innerHTML = `
+                            <div class="sources-list">
+                                ${data.sources.map(source => `
+                                    <div class="source-card">
+                                        <h3>${source.title}</h3>
+                                        <p><strong>Fichier:</strong> ${source.filename}</p>
+                                        <p><strong>Sections:</strong> ${source.chunk_count}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    } else {
+                        content.innerHTML = `<p class="error">Erreur: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    content.innerHTML = `<p class="error">Erreur de connexion</p>`;
+                });
+        }
+
+        // Fermer le modal
+        function closeModal() {
+            document.getElementById('sourcesModal').style.display = 'none';
+        }
+
+        // Vider la conversation
+        function clearChat() {
+            if (confirm('Êtes-vous sûr de vouloir vider la conversation ?')) {
+                document.getElementById('messages').innerHTML = '';
+                document.getElementById('welcomeMessage').style.display = 'block';
+                messageCount = 0;
+            }
+        }
+
+        // Afficher une erreur
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-toast';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html> 

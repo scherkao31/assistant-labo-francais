@@ -1,0 +1,12 @@
+flask==2.3.3
+openai>=1.6.1
+langchain==0.0.350
+langchain-openai==0.0.2
+chromadb==0.4.18
+python-dotenv==1.0.0
+numpy==1.24.3
+pandas==2.0.3
+faiss-cpu==1.7.4
+sentence-transformers==2.2.2
+tiktoken==0.5.2
+flask-cors==4.0.0 
