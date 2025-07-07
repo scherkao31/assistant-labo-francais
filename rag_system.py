@@ -37,6 +37,9 @@ class RAGSystem:
         
         # Initialiser ChromaDB
         chroma_path = os.getenv('CHROMA_DB_PATH', './chroma_db')
+        # Sur Render, utiliser un répertoire temporaire si le chemin par défaut n'est pas accessible
+        if not os.access(os.path.dirname(chroma_path) or '.', os.W_OK):
+            chroma_path = '/tmp/chroma_db'
         self.chroma_client = chromadb.PersistentClient(
             path=chroma_path,
             settings=Settings(anonymized_telemetry=False)
