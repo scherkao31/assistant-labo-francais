@@ -152,13 +152,32 @@ if __name__ == '__main__':
     try:
         doc_count = rag_system.collection.count()
         if doc_count == 0:
-            print("⚠️  Attention: La base de données est vide")
-            print("Exécutez 'python setup_database.py' pour l'initialiser")
+            print("⚠️  Base de données vide, construction automatique...")
+            print("🚀 Initialisation de la base de données vectorielle...")
+            
+            # Vérifier que le dossier data existe
+            if not os.path.exists("data"):
+                print("❌ Erreur: Le dossier 'data' n'existe pas")
+            else:
+                # Lister les fichiers
+                md_files = [f for f in os.listdir("data") if f.endswith(".md")]
+                if not md_files:
+                    print("❌ Erreur: Aucun fichier .md trouvé dans le dossier 'data'")
+                else:
+                    print(f"📁 Fichiers trouvés: {', '.join(md_files)}")
+                    # Construire la base de données
+                    rag_system.build_database()
+                    print("✅ Base de données vectorielle créée avec succès!")
         else:
             print(f"✅ Base de données chargée avec {doc_count} documents")
     except Exception as e:
         print(f"❌ Erreur de base de données: {e}")
-        print("Exécutez 'python setup_database.py' pour l'initialiser")
+        print("Tentative de construction de la base de données...")
+        try:
+            rag_system.build_database()
+            print("✅ Base de données vectorielle créée avec succès!")
+        except Exception as build_error:
+            print(f"❌ Erreur lors de la construction: {build_error}")
     
     # Lancer l'application
     port = int(os.getenv('PORT', os.getenv('FLASK_PORT', 5000)))
