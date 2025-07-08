@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from rag_system import RAGSystem
+from compendium_rag import CompendiumRAG
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -26,6 +27,9 @@ if not openai_api_key:
     exit(1)
 
 rag_system = RAGSystem(openai_api_key=openai_api_key)
+
+# Initialiser le système Compendium RAG
+compendium_rag = CompendiumRAG(openai_api_key=openai_api_key)
 
 @app.route('/')
 def index():
@@ -68,6 +72,45 @@ def ask_question():
         
     except Exception as e:
         print(f"Erreur lors du traitement: {e}")
+        return jsonify({
+            'error': f'Erreur serveur: {str(e)}',
+            'success': False
+        }), 500
+
+@app.route('/api/compendium', methods=['POST'])
+def ask_compendium():
+    """
+    Endpoint pour interroger le compendium belge
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or 'question' not in data:
+            return jsonify({
+                'error': 'Question manquante',
+                'success': False
+            }), 400
+        
+        question = data['question'].strip()
+        
+        if not question:
+            return jsonify({
+                'error': 'Question vide',
+                'success': False
+            }), 400
+        
+        # Traiter la question avec le compendium
+        result = compendium_rag.ask_compendium(question)
+        
+        return jsonify({
+            'success': True,
+            'answer': result['answer'],
+            'sources': result['sources'],
+            'query': result['query']
+        })
+        
+    except Exception as e:
+        print(f"Erreur lors du traitement compendium: {e}")
         return jsonify({
             'error': f'Erreur serveur: {str(e)}',
             'success': False
@@ -178,6 +221,37 @@ if __name__ == '__main__':
             print("✅ Base de données vectorielle créée avec succès!")
         except Exception as build_error:
             print(f"❌ Erreur lors de la construction: {build_error}")
+    
+    # Vérifier que la base de données compendium existe
+    try:
+        compendium_count = compendium_rag.collection.count()
+        if compendium_count == 0:
+            print("⚠️  Base de données compendium vide, construction automatique...")
+            print("🚀 Initialisation de la base de données compendium...")
+            
+            # Vérifier que le dossier compendium_data existe
+            if not os.path.exists("data/compendium_data"):
+                print("❌ Erreur: Le dossier 'data/compendium_data' n'existe pas")
+            else:
+                # Lister les fichiers JSON
+                json_files = [f for f in os.listdir("data/compendium_data") if f.endswith(".json")]
+                if not json_files:
+                    print("❌ Erreur: Aucun fichier .json trouvé dans le dossier 'data/compendium_data'")
+                else:
+                    print(f"📁 Fichiers compendium trouvés: {', '.join(json_files)}")
+                    # Construire la base de données compendium
+                    compendium_rag.build_database()
+                    print("✅ Base de données compendium créée avec succès!")
+        else:
+            print(f"✅ Base de données compendium chargée avec {compendium_count} analyses")
+    except Exception as e:
+        print(f"❌ Erreur de base de données compendium: {e}")
+        print("Tentative de construction de la base de données compendium...")
+        try:
+            compendium_rag.build_database()
+            print("✅ Base de données compendium créée avec succès!")
+        except Exception as build_error:
+            print(f"❌ Erreur lors de la construction du compendium: {build_error}")
     
     # Lancer l'application
     port = int(os.getenv('PORT', os.getenv('FLASK_PORT', 5000)))

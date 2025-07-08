@@ -16,59 +16,165 @@
                     <i class="fas fa-microscope"></i>
                     <h1>Assistant Médical</h1>
                 </div>
-                <p class="subtitle">Laboratoire de Biologie Clinique</p>
+                <p class="subtitle">Laboratoire de Biologie Clinique - Belgique</p>
             </div>
         </header>
 
+        <!-- Navigation Tabs -->
+        <nav class="tabs-nav">
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab('compendium')">
+                    <i class="fas fa-book-medical"></i>
+                    <span>Compendium</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('admin')">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Admin</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('hemato')">
+                    <i class="fas fa-tint"></i>
+                    <span>Hémato</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('microbio')">
+                    <i class="fas fa-bacteria"></i>
+                    <span>Microbio</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('chimie')">
+                    <i class="fas fa-flask"></i>
+                    <span>Chimie</span>
+                </button>
+            </div>
+        </nav>
+
         <main class="main-content">
-            <div class="chat-container">
-                <div class="welcome-message" id="welcomeMessage">
-                    <div class="welcome-icon">
-                        <i class="fas fa-stethoscope"></i>
+            <!-- Compendium Tab -->
+            <div id="compendium-tab" class="tab-content active">
+                <div class="chat-container">
+                    <div class="welcome-message" id="compendiumWelcome">
+                        <div class="welcome-icon">
+                            <i class="fas fa-book-medical"></i>
+                        </div>
+                        <h2>Compendium des Analyses - Belgique</h2>
+                        <p>Recherchez des informations sur les analyses de laboratoire disponibles dans les hôpitaux belges. Je vous fournirai les liens directs vers les pages officielles des laboratoires.</p>
+                        <div class="example-questions">
+                            <h3>Exemples de recherches :</h3>
+                            <div class="question-examples">
+                                <button class="example-btn" onclick="setQuestion('Analyse de glucose')">
+                                    <i class="fas fa-vial"></i>
+                                    Analyse de glucose
+                                </button>
+                                <button class="example-btn" onclick="setQuestion('Test de cholestérol')">
+                                    <i class="fas fa-heartbeat"></i>
+                                    Test de cholestérol
+                                </button>
+                                <button class="example-btn" onclick="setQuestion('Analyses pour diabète')">
+                                    <i class="fas fa-search"></i>
+                                    Analyses pour diabète
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <h2>Bienvenue dans votre assistant médical</h2>
-                    <p>Posez vos questions cliniques et administratives en français. Je vous répondrai en me basant sur nos protocoles et documents internes.</p>
-                    <div class="example-questions">
-                        <h3>Exemples de questions :</h3>
-                        <div class="question-examples">
-                            <button class="example-btn" onclick="setQuestion('Comment interpréter une sérologie CMV ?')">
-                                <i class="fas fa-vial"></i>
-                                Comment interpréter une sérologie CMV ?
-                            </button>
-                            <button class="example-btn" onclick="setQuestion('Quels sont les délais pour un hémogramme ?')">
-                                <i class="fas fa-clock"></i>
-                                Quels sont les délais pour un hémogramme ?
-                            </button>
-                            <button class="example-btn" onclick="setQuestion('Que faire si un médecin demande les résultats d\'un autre patient ?')">
-                                <i class="fas fa-user-shield"></i>
-                                Confidentialité des résultats
+
+                    <div class="messages" id="compendiumMessages"></div>
+
+                    <div class="loading" id="compendiumLoading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p>Recherche dans le compendium belge...</p>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="compendiumInput" 
+                            placeholder="Recherchez une analyse de laboratoire..."
+                            rows="3"
+                            maxlength="500"
+                        ></textarea>
+                        <div class="input-actions">
+                            <span class="char-counter" id="compendiumCharCounter">0/500</span>
+                            <button id="compendiumSubmitBtn" class="submit-btn" onclick="askCompendium()">
+                                <i class="fas fa-search"></i>
+                                Rechercher
                             </button>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="messages" id="messages"></div>
-
-                <div class="loading" id="loading" style="display: none;">
-                    <div class="loading-spinner"></div>
-                    <p>Recherche dans la base de données...</p>
+            <!-- Coming Soon Tabs -->
+            <div id="admin-tab" class="tab-content">
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h2>Module Administratif</h2>
+                    <p>Ce module est en cours de développement et sera bientôt disponible.</p>
+                    <div class="features-preview">
+                        <h3>Fonctionnalités à venir :</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Procédures administratives</li>
+                            <li><i class="fas fa-check"></i> Gestion des délais</li>
+                            <li><i class="fas fa-check"></i> Protocoles de validation</li>
+                            <li><i class="fas fa-check"></i> Conformité réglementaire</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <textarea 
-                        id="questionInput" 
-                        placeholder="Posez votre question médicale ou administrative en français..."
-                        rows="3"
-                        maxlength="500"
-                    ></textarea>
-                    <div class="input-actions">
-                        <span class="char-counter" id="charCounter">0/500</span>
-                        <button id="submitBtn" class="submit-btn" onclick="askQuestion()">
-                            <i class="fas fa-paper-plane"></i>
-                            Envoyer
-                        </button>
+            <div id="hemato-tab" class="tab-content">
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <h2>Module Hématologie</h2>
+                    <p>Ce module est en cours de développement et sera bientôt disponible.</p>
+                    <div class="features-preview">
+                        <h3>Fonctionnalités à venir :</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Analyses hématologiques</li>
+                            <li><i class="fas fa-check"></i> Interprétation des résultats</li>
+                            <li><i class="fas fa-check"></i> Cas cliniques</li>
+                            <li><i class="fas fa-check"></i> Valeurs de référence</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="microbio-tab" class="tab-content">
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">
+                        <i class="fas fa-bacteria"></i>
+                    </div>
+                    <h2>Module Microbiologie</h2>
+                    <p>Ce module est en cours de développement et sera bientôt disponible.</p>
+                    <div class="features-preview">
+                        <h3>Fonctionnalités à venir :</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Analyses microbiologiques</li>
+                            <li><i class="fas fa-check"></i> Antibiogrammes</li>
+                            <li><i class="fas fa-check"></i> Identification bactérienne</li>
+                            <li><i class="fas fa-check"></i> Protocoles de culture</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chimie-tab" class="tab-content">
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h2>Module Chimie Clinique</h2>
+                    <p>Ce module est en cours de développement et sera bientôt disponible.</p>
+                    <div class="features-preview">
+                        <h3>Fonctionnalités à venir :</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Analyses biochimiques</li>
+                            <li><i class="fas fa-check"></i> Dosages hormonaux</li>
+                            <li><i class="fas fa-check"></i> Marqueurs cardiaques</li>
+                            <li><i class="fas fa-check"></i> Bilan métabolique</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -116,6 +222,7 @@
         // Variables globales
         let isLoading = false;
         let messageCount = 0;
+        let currentTab = 'compendium';
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
@@ -124,16 +231,35 @@
             updateCharCounter();
         });
 
+        // Gestion des onglets
+        function switchTab(tabName) {
+            // Masquer tous les onglets
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Masquer tous les boutons d'onglet
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Afficher l'onglet sélectionné
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.closest('.tab-btn').classList.add('active');
+            
+            currentTab = tabName;
+        }
+
         // Configuration des événements
         function setupEventListeners() {
-            const input = document.getElementById('questionInput');
-            const submitBtn = document.getElementById('submitBtn');
+            const input = document.getElementById('compendiumInput');
+            const submitBtn = document.getElementById('compendiumSubmitBtn');
             
             // Soumission par Enter (avec Shift+Enter pour nouvelle ligne)
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    askQuestion();
+                    askCompendium();
                 }
             });
 
@@ -177,8 +303,8 @@
 
         // Mise à jour du compteur de caractères
         function updateCharCounter() {
-            const input = document.getElementById('questionInput');
-            const counter = document.getElementById('charCounter');
+            const input = document.getElementById('compendiumInput');
+            const counter = document.getElementById('compendiumCharCounter');
             const length = input.value.length;
             counter.textContent = `${length}/500`;
             
@@ -191,25 +317,25 @@
 
         // Définir une question exemple
         function setQuestion(question) {
-            document.getElementById('questionInput').value = question;
+            document.getElementById('compendiumInput').value = question;
             updateCharCounter();
-            document.getElementById('questionInput').focus();
+            document.getElementById('compendiumInput').focus();
         }
 
-        // Poser une question
-        function askQuestion() {
+        // Poser une question au compendium
+        function askCompendium() {
             if (isLoading) return;
 
-            const input = document.getElementById('questionInput');
+            const input = document.getElementById('compendiumInput');
             const question = input.value.trim();
 
             if (!question) {
-                showError('Veuillez saisir une question');
+                showError('Veuillez saisir une recherche');
                 return;
             }
 
             // Cacher le message d'accueil
-            document.getElementById('welcomeMessage').style.display = 'none';
+            document.getElementById('compendiumWelcome').style.display = 'none';
 
             // Afficher la question de l'utilisateur
             addMessage('user', question);
@@ -221,8 +347,8 @@
             // Afficher le loading
             setLoading(true);
 
-            // Envoyer la question
-            fetch('/api/ask', {
+            // Envoyer la question au compendium
+            fetch('/api/compendium', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -250,7 +376,7 @@
 
         // Ajouter un message à la conversation
         function addMessage(sender, content, sources = null) {
-            const messagesContainer = document.getElementById('messages');
+            const messagesContainer = document.getElementById('compendiumMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
             messageDiv.id = `message-${++messageCount}`;
@@ -259,12 +385,14 @@
             if (sources && sources.length > 0) {
                 sourcesHtml = `
                     <div class="sources">
-                        <h4><i class="fas fa-book"></i> Sources utilisées:</h4>
+                        <h4><i class="fas fa-link"></i> Liens vers les laboratoires:</h4>
                         <div class="source-list">
                             ${sources.map(source => `
                                 <div class="source-item">
-                                    <span class="source-title">${source.title}</span>
-                                    <span class="source-score">Pertinence: ${Math.round(source.score * 100)}%</span>
+                                    <a href="${source.url}" target="_blank" class="source-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        ${source.title} - ${source.lab}
+                                    </a>
                                 </div>
                             `).join('')}
                         </div>
@@ -276,7 +404,7 @@
                 <div class="message-header">
                     <div class="message-sender">
                         <i class="fas ${sender === 'user' ? 'fa-user' : 'fa-robot'}"></i>
-                        ${sender === 'user' ? 'Vous' : 'Assistant'}
+                        ${sender === 'user' ? 'Vous' : 'Compendium'}
                     </div>
                     <div class="message-time">${new Date().toLocaleTimeString('fr-FR')}</div>
                 </div>
@@ -293,17 +421,17 @@
         // Gérer l'état de chargement
         function setLoading(loading) {
             isLoading = loading;
-            const loadingDiv = document.getElementById('loading');
-            const submitBtn = document.getElementById('submitBtn');
+            const loadingDiv = document.getElementById('compendiumLoading');
+            const submitBtn = document.getElementById('compendiumSubmitBtn');
             
             if (loading) {
                 loadingDiv.style.display = 'block';
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recherche...';
             } else {
                 loadingDiv.style.display = 'none';
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer';
+                submitBtn.innerHTML = '<i class="fas fa-search"></i> Rechercher';
             }
         }
 
@@ -352,8 +480,8 @@
         // Vider la conversation
         function clearChat() {
             if (confirm('Êtes-vous sûr de vouloir vider la conversation ?')) {
-                document.getElementById('messages').innerHTML = '';
-                document.getElementById('welcomeMessage').style.display = 'block';
+                document.getElementById('compendiumMessages').innerHTML = '';
+                document.getElementById('compendiumWelcome').style.display = 'block';
                 messageCount = 0;
             }
         }
