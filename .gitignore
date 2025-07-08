@@ -1,5 +1,12 @@
-# Environment variables (contains API keys)
+# Environnement et secrets
 .env
+.env.local
+.env.production
+.env.staging
+
+# Base de données ChromaDB
+chroma_db/
+compendium_chroma_db/
 
 # Python
 __pycache__/
@@ -22,28 +29,34 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual environments
+# Virtual environment
 venv/
 env/
 ENV/
-.venv/
-
-# Database files (will be created on deployment)
-chroma_db/
+env.bak/
+venv.bak/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Logs
 *.log
+logs/
 
 # Temporary files
 *.tmp
