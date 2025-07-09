@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: assistant-medical-belge
+    env: python
+    repo: https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git  # Replace with your actual repo
+    buildCommand: |
+      pip install -r requirements.txt
+      python init_render_db.py
+    startCommand: python app.py
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: "False"
+      - key: RENDER
+        value: "true"
+      - key: PORT
+        value: "10000"
+    healthCheckPath: /api/health
+    plan: free  # Change to 'starter' or higher for production
+    region: oregon  # or 'frankfurt' for Europe
+    scaling:
+      minInstances: 1
+      maxInstances: 1
+
+databases:
+  - name: assistant-medical-db
+    databaseName: assistant_medical
+    user: assistant_user
+    plan: free  # 1GB storage - perfect for embeddings metadata
+    region: oregon  # Match your web service region 

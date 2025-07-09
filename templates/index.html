@@ -3,177 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistant Médical - Laboratoire de Biologie</title>
+    <title>Assistant Médical Belge - Clinique Saint-Pierre Ottignies</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
 </head>
 <body>
     <div class="container">
         <header class="header">
             <div class="header-content">
                 <div class="logo">
-                    <i class="fas fa-microscope"></i>
-                    <h1>Assistant Médical</h1>
+                    <i class="fas fa-hospital"></i>
+                    <h1>Assistant Médical Belge</h1>
                 </div>
-                <p class="subtitle">Laboratoire de Biologie Clinique - Belgique</p>
+                <p class="subtitle">Clinique Saint-Pierre Ottignies - Compendium des Analyses Biologiques</p>
             </div>
         </header>
 
-        <!-- Navigation Tabs -->
         <nav class="tabs-nav">
             <div class="tabs-container">
-                <button class="tab-btn active" onclick="switchTab('compendium')">
-                    <i class="fas fa-book-medical"></i>
-                    <span>Compendium</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('admin')">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Admin</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('hemato')">
-                    <i class="fas fa-tint"></i>
-                    <span>Hémato</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('microbio')">
-                    <i class="fas fa-bacteria"></i>
-                    <span>Microbio</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('chimie')">
+                <button class="tab-btn active" data-tab="compendium">
                     <i class="fas fa-flask"></i>
-                    <span>Chimie</span>
+                    Compendium
+                </button>
+                <button class="tab-btn" data-tab="admin">
+                    <i class="fas fa-clipboard-list"></i>
+                    Admin
+                </button>
+                <button class="tab-btn" data-tab="hemato">
+                    <i class="fas fa-tint"></i>
+                    Hémato
+                </button>
+                <button class="tab-btn" data-tab="microbio">
+                    <i class="fas fa-microscope"></i>
+                    Microbio
+                </button>
+                <button class="tab-btn" data-tab="chimie">
+                    <i class="fas fa-vial"></i>
+                    Chimie
                 </button>
             </div>
         </nav>
 
         <main class="main-content">
-            <!-- Compendium Tab -->
-            <div id="compendium-tab" class="tab-content active">
+            <!-- Onglet Compendium -->
+            <div id="compendium" class="tab-content active">
                 <div class="chat-container">
-                    <div class="welcome-message" id="compendiumWelcome">
+                    <div class="welcome-message">
                         <div class="welcome-icon">
-                            <i class="fas fa-book-medical"></i>
+                            <i class="fas fa-search"></i>
                         </div>
-                        <h2>Compendium des Analyses - Belgique</h2>
-                        <p>Recherchez des informations sur les analyses de laboratoire disponibles dans les hôpitaux belges. Je vous fournirai les liens directs vers les pages officielles des laboratoires.</p>
+                        <h2>Recherche dans le Compendium Belge</h2>
+                        <p>Trouvez rapidement les analyses biologiques disponibles dans les laboratoires belges partenaires. Notre base de données contient plus de 7 000 analyses provenant des principaux laboratoires du pays.</p>
+                        
                         <div class="example-questions">
-                            <h3>Exemples de recherches :</h3>
+                            <h3>Exemples de questions</h3>
                             <div class="question-examples">
-                                <button class="example-btn" onclick="setQuestion('Analyse de glucose')">
-                                    <i class="fas fa-vial"></i>
-                                    Analyse de glucose
+                                <button class="example-btn" onclick="fillExample('Je veux faire une PCR Chlamydia pneumoniae sur LBA où je peux l\'envoyer ?')">
+                                    <i class="fas fa-dna"></i>
+                                    <span>PCR Chlamydia pneumoniae sur LBA</span>
                                 </button>
-                                <button class="example-btn" onclick="setQuestion('Test de cholestérol')">
-                                    <i class="fas fa-heartbeat"></i>
-                                    Test de cholestérol
+                                <button class="example-btn" onclick="fillExample('Où puis-je envoyer une sérologie Lyme ?')">
+                                    <i class="fas fa-bug"></i>
+                                    <span>Sérologie Lyme</span>
                                 </button>
-                                <button class="example-btn" onclick="setQuestion('Analyses pour diabète')">
-                                    <i class="fas fa-search"></i>
-                                    Analyses pour diabète
+                                <button class="example-btn" onclick="fillExample('Analyse de liquide céphalo-rachidien')">
+                                    <i class="fas fa-brain"></i>
+                                    <span>Liquide céphalo-rachidien</span>
+                                </button>
+                                <button class="example-btn" onclick="fillExample('Test de résistance aux antibiotiques')">
+                                    <i class="fas fa-shield-virus"></i>
+                                    <span>Résistance aux antibiotiques</span>
                                 </button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="messages" id="compendiumMessages"></div>
-
-                    <div class="loading" id="compendiumLoading" style="display: none;">
-                        <div class="loading-spinner"></div>
-                        <p>Recherche dans le compendium belge...</p>
-                    </div>
+                    
+                    <div class="messages" id="messages"></div>
                 </div>
-
+                
                 <div class="input-container">
                     <div class="input-wrapper">
                         <textarea 
                             id="compendiumInput" 
-                            placeholder="Recherchez une analyse de laboratoire..."
-                            rows="3"
+                            placeholder="Posez votre question sur les analyses biologiques belges..."
                             maxlength="500"
                         ></textarea>
-                        <div class="input-actions">
-                            <span class="char-counter" id="compendiumCharCounter">0/500</span>
-                            <button id="compendiumSubmitBtn" class="submit-btn" onclick="askCompendium()">
-                                <i class="fas fa-search"></i>
-                                Rechercher
-                            </button>
+                    </div>
+                    <div class="input-actions">
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/500 caractères
                         </div>
+                        <button class="submit-btn" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i>
+                            Rechercher
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Coming Soon Tabs -->
-            <div id="admin-tab" class="tab-content">
+            <!-- Onglet Admin -->
+            <div id="admin" class="tab-content">
                 <div class="coming-soon">
                     <div class="coming-soon-icon">
                         <i class="fas fa-clipboard-list"></i>
                     </div>
-                    <h2>Module Administratif</h2>
-                    <p>Ce module est en cours de développement et sera bientôt disponible.</p>
+                    <h2>Procédures Administratives</h2>
+                    <p>Bientôt disponible : gestion des procédures administratives, formulaires de demande, et suivi des analyses.</p>
                     <div class="features-preview">
-                        <h3>Fonctionnalités à venir :</h3>
+                        <h3>Fonctionnalités prévues</h3>
                         <ul>
-                            <li><i class="fas fa-check"></i> Procédures administratives</li>
-                            <li><i class="fas fa-check"></i> Gestion des délais</li>
-                            <li><i class="fas fa-check"></i> Protocoles de validation</li>
-                            <li><i class="fas fa-check"></i> Conformité réglementaire</li>
+                            <li><i class="fas fa-check"></i> Formulaires de demande d'analyses</li>
+                            <li><i class="fas fa-check"></i> Suivi des échantillons</li>
+                            <li><i class="fas fa-check"></i> Gestion des urgences</li>
+                            <li><i class="fas fa-check"></i> Nomenclature INAMI</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <div id="hemato-tab" class="tab-content">
+            <!-- Onglet Hémato -->
+            <div id="hemato" class="tab-content">
                 <div class="coming-soon">
                     <div class="coming-soon-icon">
                         <i class="fas fa-tint"></i>
                     </div>
-                    <h2>Module Hématologie</h2>
-                    <p>Ce module est en cours de développement et sera bientôt disponible.</p>
+                    <h2>Hématologie</h2>
+                    <p>Module spécialisé pour l'hématologie : analyses sanguines, coagulation, et hémostase.</p>
                     <div class="features-preview">
-                        <h3>Fonctionnalités à venir :</h3>
+                        <h3>Fonctionnalités prévues</h3>
                         <ul>
-                            <li><i class="fas fa-check"></i> Analyses hématologiques</li>
+                            <li><i class="fas fa-check"></i> Analyses hématologiques complètes</li>
+                            <li><i class="fas fa-check"></i> Tests de coagulation</li>
+                            <li><i class="fas fa-check"></i> Hémostase et thrombose</li>
                             <li><i class="fas fa-check"></i> Interprétation des résultats</li>
-                            <li><i class="fas fa-check"></i> Cas cliniques</li>
-                            <li><i class="fas fa-check"></i> Valeurs de référence</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <div id="microbio-tab" class="tab-content">
+            <!-- Onglet Microbio -->
+            <div id="microbio" class="tab-content">
                 <div class="coming-soon">
                     <div class="coming-soon-icon">
-                        <i class="fas fa-bacteria"></i>
+                        <i class="fas fa-microscope"></i>
                     </div>
-                    <h2>Module Microbiologie</h2>
-                    <p>Ce module est en cours de développement et sera bientôt disponible.</p>
+                    <h2>Microbiologie</h2>
+                    <p>Assistant spécialisé en microbiologie : bactériologie, virologie, parasitologie et mycologie.</p>
                     <div class="features-preview">
-                        <h3>Fonctionnalités à venir :</h3>
+                        <h3>Fonctionnalités prévues</h3>
                         <ul>
-                            <li><i class="fas fa-check"></i> Analyses microbiologiques</li>
-                            <li><i class="fas fa-check"></i> Antibiogrammes</li>
                             <li><i class="fas fa-check"></i> Identification bactérienne</li>
-                            <li><i class="fas fa-check"></i> Protocoles de culture</li>
+                            <li><i class="fas fa-check"></i> Antibiogrammes</li>
+                            <li><i class="fas fa-check"></i> Virologie moléculaire</li>
+                            <li><i class="fas fa-check"></i> Parasitologie clinique</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <div id="chimie-tab" class="tab-content">
+            <!-- Onglet Chimie -->
+            <div id="chimie" class="tab-content">
                 <div class="coming-soon">
                     <div class="coming-soon-icon">
-                        <i class="fas fa-flask"></i>
+                        <i class="fas fa-vial"></i>
                     </div>
-                    <h2>Module Chimie Clinique</h2>
-                    <p>Ce module est en cours de développement et sera bientôt disponible.</p>
+                    <h2>Chimie Clinique</h2>
+                    <p>Module dédié à la chimie clinique : biochimie, toxicologie, et analyses spécialisées.</p>
                     <div class="features-preview">
-                        <h3>Fonctionnalités à venir :</h3>
+                        <h3>Fonctionnalités prévues</h3>
                         <ul>
-                            <li><i class="fas fa-check"></i> Analyses biochimiques</li>
-                            <li><i class="fas fa-check"></i> Dosages hormonaux</li>
+                            <li><i class="fas fa-check"></i> Biochimie générale</li>
                             <li><i class="fas fa-check"></i> Marqueurs cardiaques</li>
-                            <li><i class="fas fa-check"></i> Bilan métabolique</li>
+                            <li><i class="fas fa-check"></i> Toxicologie clinique</li>
+                            <li><i class="fas fa-check"></i> Dosages hormonaux</li>
                         </ul>
                     </div>
                 </div>
@@ -182,205 +186,206 @@
 
         <footer class="footer">
             <div class="footer-content">
-                <div class="status-indicator" id="statusIndicator">
-                    <i class="fas fa-circle"></i>
-                    <span>Vérification du statut...</span>
+                <div class="status-indicator">
+                    <i class="fas fa-circle status-online"></i>
+                    <span>Système opérationnel</span>
                 </div>
                 <div class="footer-links">
-                    <button class="link-btn" onclick="showSources()">
+                    <button class="link-btn" onclick="showSourcesModal()">
                         <i class="fas fa-database"></i>
-                        Sources disponibles
+                        Sources
                     </button>
-                    <button class="link-btn" onclick="clearChat()">
-                        <i class="fas fa-trash"></i>
-                        Vider la conversation
+                    <button class="link-btn" onclick="showHelpModal()">
+                        <i class="fas fa-question-circle"></i>
+                        Aide
                     </button>
                 </div>
             </div>
         </footer>
     </div>
 
-    <!-- Modal pour afficher les sources -->
-    <div class="modal" id="sourcesModal">
+    <!-- Modal Sources -->
+    <div id="sourcesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Sources disponibles</h2>
-                <button class="close-btn" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h2>Sources de Données</h2>
+                <button class="close-btn" onclick="closeModal('sourcesModal')">&times;</button>
             </div>
-            <div class="modal-body" id="sourcesContent">
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    <p>Chargement des sources...</p>
+            <div class="modal-body">
+                <div class="sources-list">
+                    <div class="source-card">
+                        <h3>LHUB-ULB</h3>
+                        <p>Laboratoire Hospitalier Universitaire de Bruxelles</p>
+                        <p>Plus de 4 000 analyses disponibles</p>
+                    </div>
+                    <div class="source-card">
+                        <h3>UZA Antwerpen</h3>
+                        <p>Universitair Ziekenhuis Antwerpen</p>
+                        <p>Analyses spécialisées et de routine</p>
+                    </div>
+                    <div class="source-card">
+                        <h3>CHU ULG</h3>
+                        <p>Centre Hospitalier Universitaire de Liège</p>
+                        <p>Laboratoire de référence</p>
+                    </div>
+                    <div class="source-card">
+                        <h3>CHR Citadelle</h3>
+                        <p>Centre Hospitalier Régional de la Citadelle</p>
+                        <p>Analyses de proximité</p>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Aide -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Guide d'Utilisation</h2>
+                <button class="close-btn" onclick="closeModal('helpModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Comment utiliser l'assistant ?</h3>
+                <p>Posez vos questions en langage naturel sur les analyses biologiques disponibles dans les laboratoires belges.</p>
+                
+                <h3>Exemples de questions</h3>
+                <ul>
+                    <li>« Où puis-je envoyer une PCR pour Chlamydia ? »</li>
+                    <li>« Analyse de liquide céphalo-rachidien »</li>
+                    <li>« Test de résistance aux antibiotiques »</li>
+                </ul>
+                
+                <h3>Informations fournies</h3>
+                <ul>
+                    <li>Laboratoires disponibles</li>
+                    <li>Liens directs vers les pages des analyses</li>
+                    <li>Informations sur les prélèvements</li>
+                    <li>Techniques utilisées</li>
+                </ul>
             </div>
         </div>
     </div>
 
     <script>
         // Variables globales
-        let isLoading = false;
-        let messageCount = 0;
         let currentTab = 'compendium';
-
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
-            checkStatus();
-            setupEventListeners();
-            updateCharCounter();
-        });
+        let isLoading = false;
 
         // Gestion des onglets
-        function switchTab(tabName) {
-            // Masquer tous les onglets
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                switchTab(tabId);
             });
+        });
+
+        function switchTab(tabId) {
+            // Désactiver tous les onglets
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            // Masquer tous les boutons d'onglet
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            // Activer l'onglet sélectionné
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
             
-            // Afficher l'onglet sélectionné
-            document.getElementById(tabName + '-tab').classList.add('active');
-            event.target.closest('.tab-btn').classList.add('active');
-            
-            currentTab = tabName;
+            currentTab = tabId;
         }
 
-        // Configuration des événements
-        function setupEventListeners() {
-            const input = document.getElementById('compendiumInput');
-            const submitBtn = document.getElementById('compendiumSubmitBtn');
+        // Gestion du compteur de caractères
+        const input = document.getElementById('compendiumInput');
+        const charCount = document.getElementById('charCount');
+        const submitBtn = document.getElementById('submitBtn');
+
+        input.addEventListener('input', () => {
+            const count = input.value.length;
+            charCount.textContent = count;
             
-            // Soumission par Enter (avec Shift+Enter pour nouvelle ligne)
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    askCompendium();
-                }
-            });
-
-            // Compteur de caractères
-            input.addEventListener('input', updateCharCounter);
-
-            // Fermeture du modal en cliquant à l'extérieur
-            window.addEventListener('click', function(e) {
-                const modal = document.getElementById('sourcesModal');
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
-        }
-
-        // Vérification du statut de l'application
-        function checkStatus() {
-            fetch('/api/health')
-                .then(response => response.json())
-                .then(data => {
-                    const indicator = document.getElementById('statusIndicator');
-                    if (data.success) {
-                        indicator.innerHTML = `
-                            <i class="fas fa-circle status-online"></i>
-                            <span>Prêt - ${data.database_documents} documents chargés</span>
-                        `;
-                    } else {
-                        indicator.innerHTML = `
-                            <i class="fas fa-circle status-offline"></i>
-                            <span>Erreur - ${data.error}</span>
-                        `;
-                    }
-                })
-                .catch(error => {
-                    document.getElementById('statusIndicator').innerHTML = `
-                        <i class="fas fa-circle status-offline"></i>
-                        <span>Déconnecté - Impossible de vérifier le statut</span>
-                    `;
-                });
-        }
-
-        // Mise à jour du compteur de caractères
-        function updateCharCounter() {
-            const input = document.getElementById('compendiumInput');
-            const counter = document.getElementById('compendiumCharCounter');
-            const length = input.value.length;
-            counter.textContent = `${length}/500`;
-            
-            if (length > 400) {
-                counter.classList.add('warning');
+            if (count > 400) {
+                charCount.parentElement.classList.add('warning');
             } else {
-                counter.classList.remove('warning');
+                charCount.parentElement.classList.remove('warning');
             }
+        });
+
+        // Gestion de la soumission
+        submitBtn.addEventListener('click', () => {
+            if (currentTab === 'compendium') {
+                submitCompendiumQuestion();
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (currentTab === 'compendium') {
+                    submitCompendiumQuestion();
+                }
+            }
+        });
+
+        // Fonction pour remplir un exemple
+        function fillExample(text) {
+            input.value = text;
+            charCount.textContent = text.length;
+            input.focus();
         }
 
-        // Définir une question exemple
-        function setQuestion(question) {
-            document.getElementById('compendiumInput').value = question;
-            updateCharCounter();
-            document.getElementById('compendiumInput').focus();
-        }
-
-        // Poser une question au compendium
-        function askCompendium() {
-            if (isLoading) return;
-
-            const input = document.getElementById('compendiumInput');
+        // Soumission pour le compendium
+        async function submitCompendiumQuestion() {
             const question = input.value.trim();
+            if (!question || isLoading) return;
 
-            if (!question) {
-                showError('Veuillez saisir une recherche');
-                return;
-            }
-
-            // Cacher le message d'accueil
-            document.getElementById('compendiumWelcome').style.display = 'none';
-
-            // Afficher la question de l'utilisateur
+            isLoading = true;
+            submitBtn.disabled = true;
+            
+            // Ajouter le message utilisateur
             addMessage('user', question);
-
-            // Vider le champ de saisie
+            
+            // Vider l'input
             input.value = '';
-            updateCharCounter();
-
+            charCount.textContent = '0';
+            
             // Afficher le loading
-            setLoading(true);
-
-            // Envoyer la question au compendium
-            fetch('/api/compendium', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    question: question
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                setLoading(false);
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/compendium', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question })
+                });
+                
+                const data = await response.json();
+                
+                hideLoading();
                 
                 if (data.success) {
                     addMessage('assistant', data.answer, data.sources);
                 } else {
-                    addMessage('assistant', `Erreur: ${data.error}`);
+                    addMessage('assistant', 'Désolé, une erreur s\'est produite. Veuillez réessayer.');
                 }
-            })
-            .catch(error => {
-                setLoading(false);
-                addMessage('assistant', 'Erreur de connexion. Veuillez réessayer.');
+            } catch (error) {
+                hideLoading();
+                addMessage('assistant', 'Erreur de connexion. Veuillez vérifier votre connexion internet.');
                 console.error('Erreur:', error);
-            });
+            } finally {
+                isLoading = false;
+                submitBtn.disabled = false;
+            }
         }
 
-        // Ajouter un message à la conversation
+        // Gestion des messages
         function addMessage(sender, content, sources = null) {
-            const messagesContainer = document.getElementById('compendiumMessages');
+            const messagesContainer = document.getElementById('messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
-            messageDiv.id = `message-${++messageCount}`;
-
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            
             let sourcesHtml = '';
             if (sources && sources.length > 0) {
                 sourcesHtml = `
@@ -389,114 +394,108 @@
                         <div class="source-list">
                             ${sources.map(source => `
                                 <div class="source-item">
-                                    <a href="${source.url}" target="_blank" class="source-link">
-                                        <i class="fas fa-external-link-alt"></i>
-                                        ${source.title} - ${source.lab}
-                                    </a>
+                                    <div class="source-header">
+                                        <a href="${source.url}" target="_blank" class="source-link">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            ${source.title}
+                                        </a>
+                                        <span class="source-lab">${source.lab}</span>
+                                    </div>
+                                    ${source.description ? `<div class="source-description"><strong>Description:</strong> ${source.description}</div>` : ''}
+                                    ${source.prelevement ? `<div class="source-prelevement"><strong>Prélèvement:</strong> ${source.prelevement}</div>` : ''}
+                                    ${source.technique ? `<div class="source-technique"><strong>Technique:</strong> ${source.technique}</div>` : ''}
+                                    <div class="source-score">Pertinence: ${Math.round(source.score * 100)}%</div>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 `;
             }
-
+            
             messageDiv.innerHTML = `
                 <div class="message-header">
                     <div class="message-sender">
-                        <i class="fas ${sender === 'user' ? 'fa-user' : 'fa-robot'}"></i>
-                        ${sender === 'user' ? 'Vous' : 'Compendium'}
+                        <i class="fas fa-${sender === 'user' ? 'user' : 'robot'}"></i>
+                        ${sender === 'user' ? 'Vous' : 'Assistant'}
                     </div>
-                    <div class="message-time">${new Date().toLocaleTimeString('fr-FR')}</div>
+                    <div class="message-time">${timeString}</div>
                 </div>
-                <div class="message-content">
-                    ${content.replace(/\n/g, '<br>')}
-                </div>
+                <div class="message-content">${formatMessage(content)}</div>
                 ${sourcesHtml}
             `;
-
+            
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // Gérer l'état de chargement
-        function setLoading(loading) {
-            isLoading = loading;
-            const loadingDiv = document.getElementById('compendiumLoading');
-            const submitBtn = document.getElementById('compendiumSubmitBtn');
-            
-            if (loading) {
-                loadingDiv.style.display = 'block';
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recherche...';
-            } else {
-                loadingDiv.style.display = 'none';
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-search"></i> Rechercher';
-            }
+        function formatMessage(content) {
+            // Améliorer le formatage du texte
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>')
+                .replace(/(\d+\.\s)/g, '<br>$1'); // Numérotation sur nouvelle ligne
         }
 
-        // Afficher les sources
-        function showSources() {
-            const modal = document.getElementById('sourcesModal');
-            const content = document.getElementById('sourcesContent');
-            
-            modal.style.display = 'block';
-            content.innerHTML = `
+        function showLoading() {
+            const messagesContainer = document.getElementById('messages');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading-message';
+            loadingDiv.className = 'message assistant';
+            loadingDiv.innerHTML = `
+                <div class="message-header">
+                    <div class="message-sender">
+                        <i class="fas fa-robot"></i>
+                        Assistant
+                    </div>
+                    <div class="message-time">${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    <p>Chargement des sources...</p>
+                    <span>Recherche dans le compendium...</span>
                 </div>
             `;
-
-            fetch('/api/sources')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        content.innerHTML = `
-                            <div class="sources-list">
-                                ${data.sources.map(source => `
-                                    <div class="source-card">
-                                        <h3>${source.title}</h3>
-                                        <p><strong>Fichier:</strong> ${source.filename}</p>
-                                        <p><strong>Sections:</strong> ${source.chunk_count}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `;
-                    } else {
-                        content.innerHTML = `<p class="error">Erreur: ${data.error}</p>`;
-                    }
-                })
-                .catch(error => {
-                    content.innerHTML = `<p class="error">Erreur de connexion</p>`;
-                });
+            messagesContainer.appendChild(loadingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // Fermer le modal
-        function closeModal() {
-            document.getElementById('sourcesModal').style.display = 'none';
-        }
-
-        // Vider la conversation
-        function clearChat() {
-            if (confirm('Êtes-vous sûr de vouloir vider la conversation ?')) {
-                document.getElementById('compendiumMessages').innerHTML = '';
-                document.getElementById('compendiumWelcome').style.display = 'block';
-                messageCount = 0;
+        function hideLoading() {
+            const loadingMessage = document.getElementById('loading-message');
+            if (loadingMessage) {
+                loadingMessage.remove();
             }
         }
 
-        // Afficher une erreur
-        function showError(message) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-toast';
-            errorDiv.textContent = message;
-            document.body.appendChild(errorDiv);
-            
-            setTimeout(() => {
-                errorDiv.remove();
-            }, 3000);
+        // Gestion des modales
+        function showSourcesModal() {
+            document.getElementById('sourcesModal').style.display = 'block';
         }
+
+        function showHelpModal() {
+            document.getElementById('helpModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Fermer les modales en cliquant à l'extérieur
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Gestion des erreurs
+        window.addEventListener('error', (e) => {
+            console.error('Erreur JavaScript:', e.error);
+            if (isLoading) {
+                hideLoading();
+                addMessage('assistant', 'Une erreur inattendue s\'est produite. Veuillez actualiser la page.');
+                isLoading = false;
+                submitBtn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html> 

@@ -336,59 +336,76 @@ class CompendiumRAG:
                 'sources': []
             }
         
-        # Préparer le contexte
+        # Préparer le contexte avec plus de détails
         context_text = "\n\n".join([
-            f"Analyse: {analyse['titre']}\n"
+            f"=== ANALYSE {i+1} ===\n"
+            f"Titre: {analyse['titre']}\n"
             f"Laboratoire: {analyse['laboratoire']}\n"
             f"Code: {analyse['code']}\n"
+            f"Lien direct: {analyse['lien']}\n"
             f"Description: {analyse['description']}\n"
-            f"Indication: {analyse['indication']}\n"
-            f"Prélèvement: {analyse['prelevement']}\n"
-            f"Technique: {analyse['technique']}\n"
-            f"Référence: {analyse['reference']}"
-            for analyse in analyses[:5]  # Limiter à 5 analyses
+            f"Indication clinique: {analyse['indication']}\n"
+            f"Type de prélèvement: {analyse['prelevement']}\n"
+            f"Technique utilisée: {analyse['technique']}\n"
+            f"Valeurs de référence: {analyse['reference']}\n"
+            f"Score de pertinence: {analyse['score']:.3f}"
+            for i, analyse in enumerate(analyses[:5])  # Limiter à 5 analyses
         ])
         
-        # Prompt spécialisé pour le compendium
-        prompt = f"""Vous êtes un assistant spécialisé dans le compendium des analyses de laboratoire belges.
-Répondez UNIQUEMENT en français et basez-vous UNIQUEMENT sur les analyses trouvées.
+        # Prompt amélioré pour plus de contexte biologique
+        prompt = f"""Vous êtes un assistant médical spécialisé dans les analyses de laboratoire belges, avec une expertise approfondie en biologie médicale.
 
-Recherche: {query}
+QUESTION DU BIOLOGISTE: {query}
 
-Analyses trouvées dans les laboratoires belges:
+ANALYSES TROUVÉES DANS LES LABORATOIRES BELGES:
 {context_text}
 
-Instructions:
-1. Répondez de manière claire et précise en français
-2. Présentez les analyses les plus pertinentes
-3. Mentionnez les laboratoires où ces analyses sont disponibles
-4. Donnez des informations sur les prélèvements et techniques si disponibles
-5. Indiquez que les utilisateurs peuvent cliquer sur les liens pour plus de détails
-6. Utilisez le vocabulaire médical approprié
+INSTRUCTIONS POUR VOTRE RÉPONSE:
+1. **Contexte biologique approfondi**: Expliquez l'importance clinique et biologique de l'analyse demandée
+2. **Recommandations pratiques**: Donnez des conseils sur le prélèvement, la conservation, les interférences possibles
+3. **Interprétation clinique**: Expliquez comment interpréter les résultats et leur signification
+4. **Laboratoires disponibles**: Présentez clairement les laboratoires belges qui proposent cette analyse
+5. **Liens directs**: Mentionnez que les liens directs vers les laboratoires sont fournis pour plus de détails
+6. **Considérations techniques**: Expliquez les méthodes utilisées et leurs avantages/limites
 
-Réponse:"""
+STRUCTURE DE RÉPONSE ATTENDUE:
+- Introduction avec contexte biologique
+- Présentation des analyses disponibles par laboratoire
+- Conseils pratiques pour le biologiste
+- Considérations techniques et méthodologiques
+- Interprétation clinique
+
+Répondez en français médical professionnel, adapté à un biologiste médical expérimenté."""
         
         try:
             response = self.client.chat.completions.create(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "Vous êtes un assistant spécialisé dans le compendium des analyses de laboratoire belges. Répondez uniquement en français et basez-vous uniquement sur les analyses trouvées."},
+                    {"role": "system", "content": "Vous êtes un assistant médical expert en biologie clinique, spécialisé dans les analyses de laboratoire belges. Votre expertise couvre la biochimie, la microbiologie, l'hématologie, l'immunologie et la biologie moléculaire. Répondez avec un niveau scientifique élevé adapté aux professionnels de santé."},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=800,
+                max_tokens=1200,
                 temperature=0.1
             )
             
             answer = response.choices[0].message.content
             
-            # Préparer les sources avec liens
+            # Préparer les sources avec plus d'informations
             sources = []
-            for analyse in analyses[:5]:  # Limiter à 5 liens
+            for i, analyse in enumerate(analyses[:5]):  # Limiter à 5 liens
+                # Créer un titre plus descriptif
+                title_with_context = f"{analyse['titre']}"
+                if analyse['code']:
+                    title_with_context += f" ({analyse['code']})"
+                
                 sources.append({
-                    'title': analyse['titre'],
+                    'title': title_with_context,
                     'lab': analyse['laboratoire'],
                     'url': analyse['lien'],
                     'code': analyse['code'],
+                    'description': analyse['description'][:100] + "..." if len(analyse['description']) > 100 else analyse['description'],
+                    'prelevement': analyse['prelevement'][:50] + "..." if len(analyse['prelevement']) > 50 else analyse['prelevement'],
+                    'technique': analyse['technique'][:50] + "..." if len(analyse['technique']) > 50 else analyse['technique'],
                     'score': round(analyse['score'], 3)
                 })
             

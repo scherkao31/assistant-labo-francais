@@ -7,6 +7,8 @@
 # Base de données ChromaDB
 chroma_db/
 compendium_chroma_db/
+/tmp/chroma_db/
+/tmp/compendium_chroma_db/
 
 # Python
 __pycache__/
@@ -60,4 +62,8 @@ logs/
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
+
+# Render specific
+.render/
+render-build/ 
